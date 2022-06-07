@@ -1,16 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Short.er.Data;
 
 namespace Short.er.Controllers
 {
     public class RedirectController : Controller
     {
-        [Route("/{redirectUrl?}")]
-        public IActionResult RedirectUrl(string? redirectUrl)
+        private readonly ApplicationDBContext _db;
+        public RedirectController(ApplicationDBContext db)
         {
-            if (redirectUrl == "test")  return Redirect("https://www.archlinux.org");
-            // datatbase query useing redirectUrl
-            // return redirect url
-            else return Redirect("https://www.google.com");
+            _db = db;
+        }
+
+        [Route("/{redirectUrl?}")]
+        public IActionResult RedirectUrl(string redirectUrl)
+        {
+            var url = _db.Urls
+                .First(entry => entry.Hash == redirectUrl);
+
+            if (url != null) { 
+                url.NumberOfRquests++;
+                _db.Urls.Update(url);
+                _db.SaveChanges();
+                return Redirect(url.Url);
+            }
+            else return Redirect("www.google.com");
         }
     }
 }
