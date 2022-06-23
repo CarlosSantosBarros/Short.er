@@ -12,8 +12,8 @@ using Short.er.Data;
 namespace Short.er.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20220606152849_AddUrlTable")]
-    partial class AddUrlTable
+    [Migration("20220611111425_NewURLTable")]
+    partial class NewURLTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
