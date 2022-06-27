@@ -13,6 +13,8 @@ namespace Short.er.Controllers {
 	[Route("/{redirectUrl?}")]
 	public IActionResult RedirectUrl(string redirectUrl) {
 
+	// this needs to check size of url
+	// if this returns mroe than one result then handle
 	  var url = _db.Urls.SingleOrDefault(entry => entry.Hash.StartsWith(redirectUrl));
 	  Debug.WriteLine(redirectUrl, "Url Data");
 
@@ -23,6 +25,7 @@ namespace Short.er.Controllers {
 		return Redirect(url.Url);
 	  }
 	  else
+	  // need no url exists view
 		return NotFound();
 	}
   }
