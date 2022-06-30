@@ -1,5 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using Amazon.AspNetCore.Identity.Cognito;
+using Amazon.Extensions.CognitoAuthentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Short.er.Data;
@@ -9,14 +13,25 @@ using Short.er.Utils;
 namespace Short.er.Controllers {
   public class ShortenedUrlsController : Controller {
 	private readonly ApplicationDBContext _context;
+	private readonly CognitoUserManager<CognitoUser> _userManager;
 
-	public ShortenedUrlsController(ApplicationDBContext context) {
+	public ShortenedUrlsController(ApplicationDBContext context, 
+	UserManager<CognitoUser> userManager) {
 	  _context = context;
+	  _userManager = userManager as CognitoUserManager<CognitoUser>;
 	}
 
 	// GET: ShortenedUrls
 	[Route("/ShortenedUrls")]
 	public async Task<IActionResult> Index() {
+	  string userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+
+	  CognitoUser user = await _userManager.FindByIdAsync(userId);
+	  if (user == null) {
+		return NotFound($"Unable to load user with ID '{userId}'.");
+	  }
+	  Debug.WriteLine(user.Username);
+
 	  return _context.Urls != null ?
 				  View(await _context.Urls.ToListAsync()) :
 				  Problem("Entity set 'ApplicationDBContext.Urls'  is null.");

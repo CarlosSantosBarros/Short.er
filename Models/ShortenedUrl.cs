@@ -5,6 +5,7 @@ namespace Short.er.Models {
   public class ShortenedUrl {
 
 	public int Id { get; set; }
+	public string User { get; set; }
 	public string? Hash { get; set; }
 	public DateTime CreatedDateTime { get; set; } = DateTime.Now;
 	public int NumberOfRquests { get; set; } = 0;

@@ -16,7 +16,7 @@ namespace Short.er.Controllers {
 	// this needs to check size of url
 	// if this returns mroe than one result then handle
 	  var url = _db.Urls.SingleOrDefault(entry => entry.Hash.StartsWith(redirectUrl));
-	  Debug.WriteLine(redirectUrl, "Url Data");
+	 // Debug.WriteLine(redirectUrl, "Url Data");
 
 	  if (url != null) {
 		url.NumberOfRquests++;

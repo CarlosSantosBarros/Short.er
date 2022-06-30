@@ -2,7 +2,7 @@
 
 namespace Short.er.Models {
   public class LoginModel {
-	public string ReturnUrl { get; set; }
+
 	[Required]
 	public string UserName { get; set; }
 

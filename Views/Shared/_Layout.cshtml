@@ -27,10 +27,12 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Root" asp-action="Index">Home</a>
-
+                             @if (SignInManager.IsSignedIn(User))
+{
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ShortenedUrls" asp-action="Index">Controle Pannel</a>
                         </li>
+}
                     </ul>
                 </div>
             </div>
@@ -38,12 +40,11 @@
     <ul class="nav navbar-nav">
                     @if (SignInManager.IsSignedIn(User))
 {
-    <form asp-area="" asp-page="" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post" id="logoutForm" class="navbar-right">
-            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Hello @UserManager.GetUserName(User)!</a></li>
 
-            <li>
-                <button type="submit" class="btn btn-link navbar-btn navbar-link">Logout</button>
-    </form>
+            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Hello @UserManager.GetUserName(User)!</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a></li>
+
+
 }
 else
 {

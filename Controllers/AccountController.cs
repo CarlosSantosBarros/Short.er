@@ -4,24 +4,31 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Short.er.Models;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Short.er.Controllers {
   public class AccountController : Controller {
-	private readonly SignInManager<CognitoUser> _signInManager;
 	private readonly ILogger<AccountController> _logger;
+	private readonly SignInManager<CognitoUser> _signInManager;
+	private readonly CognitoUserManager<CognitoUser> _userManager;
+	private readonly CognitoUserPool _pool;
 
-	public AccountController(SignInManager<CognitoUser> signInManager, ILogger<AccountController> logger) {
-	  _signInManager = signInManager;
+
+	public AccountController(ILogger<AccountController> logger,
+	SignInManager<CognitoUser> signInManager,
+				UserManager<CognitoUser> userManager,
+							CognitoUserPool pool) {
 	  _logger = logger;
+	  _signInManager = signInManager;
+	  _userManager = userManager as CognitoUserManager<CognitoUser>;
+	  _pool = pool;
 	}
 
-	public IActionResult Login() {
-	  return View();
-	}
+	public IActionResult Login() => View();
 
 	[Route("/Account/Login")]
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Login(LoginModel formData) {
 
 
@@ -29,10 +36,10 @@ namespace Short.er.Controllers {
 		var result = await _signInManager.PasswordSignInAsync(formData.UserName, formData.Password, formData.RememberMe, lockoutOnFailure: false);
 		if (result.Succeeded) {
 		  _logger.LogInformation("User logged in.");
-		  // ridirect here
+		  return RedirectToAction("Index", "Root");
 		}
 		else if (result.RequiresTwoFactor) {
-		  return RedirectToAction("./LoginWith2fa", new { ReturnUrl = formData.ReturnUrl, RememberMe = formData.RememberMe });
+		  return RedirectToAction("./LoginWith2fa");
 		}
 		else if (result.IsCognitoSignInResult()) {
 		  if (result is CognitoSignInResult cognitoResult) {
@@ -45,19 +52,76 @@ namespace Short.er.Controllers {
 			  return RedirectToAction("./ResetPassword");
 			}
 		  }
-
 		}
 
 		ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 		return RedirectToAction(nameof(Index));
 	  }
-
 	  // If we got this far, something failed, redisplay form
-	  return RedirectToAction(nameof(Index));
+	  return RedirectToAction("Index", "Root");
 	}
 
-	IActionResult RedirectToPageResult(string v, object value) => throw new NotImplementedException();
+	public IActionResult Register() => View();
+
+	[Route("/Account/Register")]
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Register(RegisterModel formData) {
+
+	  if (ModelState.IsValid) {
+		var user = _pool.GetUser(formData.Email);
+		var result = await _userManager.CreateAsync(user, formData.Password);
+
+		if (result.Succeeded) {
+		  _logger.LogInformation("User created a new account with password.");
+
+		  await _signInManager.SignInAsync(user, isPersistent: false);
+
+		  return RedirectToAction("ConfirmAccount");
+		}
+		foreach (var error in result.Errors) {
+		  Debug.WriteLine(string.Empty, error.Description);
+		}
+	  }
+
+	  // If we got this far, something failed, redisplay form
+	  return RedirectToAction("Index", "Root");
+	}
+
+	public IActionResult ConfirmAccount() => View();
+
+	[Route("/Account/ConfirmAccount")]
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+
+	public async Task<IActionResult> ConfirmAccount(ConfirmAccountModel formData) {
+
+	  if (ModelState.IsValid) {
+		string userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+
+		CognitoUser user = await _userManager.FindByIdAsync(userId);
+		if (user == null) {
+		  return NotFound($"Unable to load user with ID '{userId}'.");
+		}
+
+		var result = await _userManager.ConfirmSignUpAsync(user, formData.Code, true);
+		if (!result.Succeeded) {
+		  throw new InvalidOperationException($"Error confirming account for user with ID '{userId}':");
+		}
+	  }
+
+	  // If we got this far, something failed, redisplay form
+	  return RedirectToAction("Index", "Root");
+	}
+
+	public async Task<IActionResult> Logout() {
+	  await _signInManager.SignOutAsync();
+	  _logger.LogInformation("User logged out.");
+
+	  return RedirectToAction("Index", "Root");
+	  }
+
+	// paste above here
   }
 }
-
 
