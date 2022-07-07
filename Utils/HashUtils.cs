@@ -17,7 +17,7 @@ namespace Short.er.Utils {
 	  // Loop through each byte of the hashed data
 	  // and format each one as a hexadecimal string.
 	  for (int i = 0; i < data.Length; i++) {
-		Debug.WriteLine($"{data[i]}");
+		//Debug.WriteLine($"{data[i]}");
 		sBuilder.Append(data[i].ToString("x2"));
 	  }
 

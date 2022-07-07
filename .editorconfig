@@ -136,9 +136,9 @@ csharp_style_allow_embedded_statements_on_same_line_experimental = true:silent
 #### C# Formatting Rules ####
 
 # New line preferences
-csharp_new_line_before_catch = true
-csharp_new_line_before_else = true
-csharp_new_line_before_finally = true
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_open_brace = none
@@ -221,11 +221,16 @@ dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix = 
 dotnet_naming_style.begins_with_i.word_separator = 
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
+dotnet_diagnostic.SA1200.severity = silent
+dotnet_diagnostic.SA1027.severity = silent
+dotnet_diagnostic.SA1101.severity = silent
+dotnet_diagnostic.SA1309.severity = silent
+dotnet_diagnostic.SA1500.severity = none
 
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
-tab_width = 4
-indent_size = 2
+tab_width = 1
+indent_size = 1
 end_of_line = crlf
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
@@ -258,3 +263,9 @@ dotnet_style_qualification_for_property = false:silent
 dotnet_style_qualification_for_method = false:silent
 dotnet_style_qualification_for_event = false:silent
 indent_style = tab
+
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = silent
+
+# Default severity for analyzer diagnostics with category 'StyleCop.CSharp.LayoutRules'
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = none
