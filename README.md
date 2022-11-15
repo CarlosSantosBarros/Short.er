@@ -1,2 +1,2 @@
 # Short.er
- A url sortening service
+ A url sortening service with authentication
